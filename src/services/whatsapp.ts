@@ -54,6 +54,7 @@ private karyawanData = {
   private ownerNumbers = new Set<string>();
   private premiumNumbers = new Set<string>();
   private menuCommands = new Set<string>(["allmenu", "menu", "help", "bot"]);
+  private registeredUsers = new Map<string, { nama: string, umur: string }>();
   private activeGames = new Map<string, { answer: string | string[] | number, type: string, attempts?: number, state?: string, players?: string[], turnIndex?: number, positions?: Record<string, number> }>();
   private activeSwGroups = new Set<string>();
   
@@ -121,6 +122,9 @@ this.loadBotSettings();
       if (obj.premiumNumbers !== undefined && Array.isArray(obj.premiumNumbers)) {
         this.premiumNumbers = new Set(obj.premiumNumbers.map((n: string) => this.normalizeJid(n)));
       }
+      if (obj.registeredUsers !== undefined) {
+        this.registeredUsers = new Map(Object.entries(obj.registeredUsers));
+      }
     } catch {
       // ignore
     }
@@ -133,7 +137,8 @@ this.loadBotSettings();
       autoTypingEnabled: this.autoTypingEnabled,
       menuLink: this.menuLink,
       ownerNumbers: Array.from(this.ownerNumbers),
-      premiumNumbers: Array.from(this.premiumNumbers)
+      premiumNumbers: Array.from(this.premiumNumbers),
+      registeredUsers: Object.fromEntries(this.registeredUsers)
     };
     console.log("Saving bot settings to:", this.botSettingsFile);
     fs.writeFileSync(this.botSettingsFile, JSON.stringify(obj, null, 2));
@@ -1032,9 +1037,42 @@ private loadKaryawanData() {
     
     // Check if command is an alias for the menu
     const possibleCommandName = requestedCmd.replace(/^\.?/, "").toLowerCase();
+    
+    if (possibleCommandName === "daftar") {
+        const payload = messageContent.trim().replace(/^\.?daftar\s*/i, "").trim();
+        const parts = payload.split(".");
+        if (parts.length < 2) {
+            const errText = "❌ Format salah. Ketik: .daftar [nama].[umur]\nContoh: .daftar Budi.18";
+            return await this.sock.sendMessage(jid, { text: errText }, { quoted: msg });
+        }
+        const nama = parts[0].trim();
+        const umur = parts.slice(1).join(".").trim();
+        
+        this.registeredUsers.set(senderJid, { nama, umur });
+        this.saveBotSettings();
+
+        const successText = `✅ *Terverifikasi*\n\nNama: ${nama}\nUmur: ${umur}\n\nSilakan ketik *.allmenu* untuk melihat daftar menu.`;
+        
+        if (this.coverImageBuffer) {
+            await this.sock.sendMessage(jid, { image: this.coverImageBuffer, caption: successText }, { quoted: msg });
+        } else {
+            await this.sock.sendMessage(jid, { text: successText }, { quoted: msg });
+        }
+        return;
+    }
+
     const isMenuCmd = this.menuCommands.has(possibleCommandName) || body.toLowerCase() === "all menu";
 
     if (isMenuCmd) {
+      if (!this.registeredUsers.has(senderJid)) {
+          const registerText = `Silakan daftar terlebih dahulu untuk menggunakan bot ini.\n\nKetik: *.daftar [nama].[umur]*\nContoh: .daftar Budi.18`;
+          if (this.coverImageBuffer) {
+              await this.sock.sendMessage(jid, { image: this.coverImageBuffer, caption: registerText }, { quoted: msg });
+          } else {
+              await this.sock.sendMessage(jid, { text: registerText }, { quoted: msg });
+          }
+          return;
+      }
       const botName = this.customBotName || this.sock.user?.name || "Wabot Pro";
       const totalFitur = ownerCommands.length + groupCommands.length + funCommands.length + margaCommands.length + videoCommands.length + stickerCommands.length + downloadCommands.length + kristenCommands.length + islamCommands.length + cecanCommands.length + primbonCommands.length + animeCommands.length + sertifikatCommands.length + rpgCommands.length + storeCommands.length + beritaCommands.length + sulapCommands.length + hentaiCommands.length + hantuCommands.length + posterCommands.length + coganCommands.length + toolsCommands.length + deviceCommands.length + tiketCommands.length + karyawanCommands.length + hewanCommands.length + bokepCommands.length + aiCommands.length + cdramaCommands.length;
       
