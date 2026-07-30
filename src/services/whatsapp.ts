@@ -1061,9 +1061,10 @@ private loadKaryawanData() {
         return;
     }
 
+    const isSpecificMenu = possibleCommandName.endsWith("menu") || body.toLowerCase().endsWith(" menu");
     const isMenuCmd = this.menuCommands.has(possibleCommandName) || body.toLowerCase() === "all menu";
 
-    if (isMenuCmd) {
+    if (isMenuCmd || isSpecificMenu) {
       if (!this.registeredUsers.has(senderJid)) {
           const registerText = `Silakan daftar terlebih dahulu untuk menggunakan bot ini.\n\nKetik: *.daftar [nama].[umur]*\nContoh: .daftar Budi.18`;
           if (this.coverImageBuffer) {
@@ -1073,6 +1074,9 @@ private loadKaryawanData() {
           }
           return;
       }
+    }
+
+    if (isMenuCmd) {
       const botName = this.customBotName || this.sock.user?.name || "Wabot Pro";
       const totalFitur = ownerCommands.length + groupCommands.length + funCommands.length + margaCommands.length + videoCommands.length + stickerCommands.length + downloadCommands.length + kristenCommands.length + islamCommands.length + cecanCommands.length + primbonCommands.length + animeCommands.length + sertifikatCommands.length + rpgCommands.length + storeCommands.length + beritaCommands.length + sulapCommands.length + hentaiCommands.length + hantuCommands.length + posterCommands.length + coganCommands.length + toolsCommands.length + deviceCommands.length + tiketCommands.length + karyawanCommands.length + hewanCommands.length + bokepCommands.length + aiCommands.length + cdramaCommands.length;
       
