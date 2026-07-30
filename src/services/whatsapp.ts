@@ -466,8 +466,11 @@ private loadKaryawanData() {
                 if (!msgText.includes(`@${participantJid.split("@")[0]}`)) {
                     msgText += `\n\nSelamat datang @${participantJid.split("@")[0]}!`;
                 }
-
-                await this.sock.sendMessage(id, { text: msgText, mentions: [participantJid] });
+                if (this.coverImageBuffer) {
+                    await this.sock.sendMessage(id, { image: this.coverImageBuffer, caption: msgText, mentions: [participantJid] });
+                } else {
+                    await this.sock.sendMessage(id, { text: msgText, mentions: [participantJid] });
+                }
                 this.broadcastState(`Sent welcome message to ${participantJid}`);
               } catch (e: any) {
                 console.error("Failed to send welcome message:", e);
@@ -484,8 +487,11 @@ private loadKaryawanData() {
                 if (!msgText.includes(`@${participantJid.split("@")[0]}`)) {
                     msgText += `\n\nSelamat tinggal @${participantJid.split("@")[0]}!`;
                 }
-
-                await this.sock.sendMessage(id, { text: msgText, mentions: [participantJid] });
+                if (this.coverImageBuffer) {
+                    await this.sock.sendMessage(id, { image: this.coverImageBuffer, caption: msgText, mentions: [participantJid] });
+                } else {
+                    await this.sock.sendMessage(id, { text: msgText, mentions: [participantJid] });
+                }
                 this.broadcastState(`Sent goodbye message to ${participantJid}`);
               } catch (e: any) {
                 this.broadcastState(`Failed to send goodbye message: ${e?.message || e}`);
@@ -709,8 +715,11 @@ private loadKaryawanData() {
               if (!msgText.includes(`@${participantJid.split("@")[0]}`)) {
                   msgText += `\n\nSelamat datang @${participantJid.split("@")[0]}!`;
               }
-
-              await this.sock.sendMessage(jid, { text: msgText, mentions: [participantJid] });
+              if (this.coverImageBuffer) {
+                  await this.sock.sendMessage(jid, { image: this.coverImageBuffer, caption: msgText, mentions: [participantJid] });
+              } else {
+                  await this.sock.sendMessage(jid, { text: msgText, mentions: [participantJid] });
+              }
               this.broadcastState(`Fallback sent welcome to ${participantJid}`);
             } catch (e: any) {
                this.broadcastState(`Fallback failed welcome: ${e?.message}`);
@@ -727,8 +736,11 @@ private loadKaryawanData() {
               if (!msgText.includes(`@${participantJid.split("@")[0]}`)) {
                   msgText += `\n\nSelamat tinggal @${participantJid.split("@")[0]}!`;
               }
-
-              await this.sock.sendMessage(jid, { text: msgText, mentions: [participantJid] });
+              if (this.coverImageBuffer) {
+                  await this.sock.sendMessage(jid, { image: this.coverImageBuffer, caption: msgText, mentions: [participantJid] });
+              } else {
+                  await this.sock.sendMessage(jid, { text: msgText, mentions: [participantJid] });
+              }
               this.broadcastState(`Fallback sent goodbye to ${participantJid}`);
             } catch (e: any) {
                this.broadcastState(`Fallback failed goodbye: ${e?.message}`);
